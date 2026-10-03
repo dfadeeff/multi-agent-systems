@@ -70,21 +70,24 @@ SYSTEM_PROMPT = (
     "never guess membership details."
 )
 
-llm_with_tools = get_llm().bind_tools(tools)
+def build_react_graph(tools: list, system_prompt: str):
+    """Compile a ReAct graph: LLM node <-> prebuilt tool node, looping until no tool calls."""
+    llm_with_tools = get_llm().bind_tools(tools)
+
+    def invoke_llm(state: MessagesState) -> dict:
+        messages = [SystemMessage(content=system_prompt), *state["messages"]]
+        return {"messages": [llm_with_tools.invoke(messages)]}
+
+    graph_builder = StateGraph(MessagesState)
+    graph_builder.add_node("invoke_llm", invoke_llm)  # Our LLM node
+    graph_builder.add_node("tools", ToolNode(tools=tools))  # Prebuilt tool node
+    graph_builder.add_edge(START, "invoke_llm")
+    graph_builder.add_conditional_edges("invoke_llm", tools_condition)  # Prebuilt conditional edge
+    graph_builder.add_edge("tools", "invoke_llm")
+    return graph_builder.compile()
 
 
-def invoke_llm(state: MessagesState) -> dict:
-    messages = [SystemMessage(content=SYSTEM_PROMPT), *state["messages"]]
-    return {"messages": [llm_with_tools.invoke(messages)]}
-
-
-graph_builder = StateGraph(MessagesState)
-graph_builder.add_node("invoke_llm", invoke_llm)  # Our LLM node
-graph_builder.add_node("tools", ToolNode(tools=tools))  # Prebuilt tool node
-graph_builder.add_edge(START, "invoke_llm")
-graph_builder.add_conditional_edges("invoke_llm", tools_condition)  # Prebuilt conditional edge
-graph_builder.add_edge("tools", "invoke_llm")
-react_graph = graph_builder.compile()
+react_graph = build_react_graph(tools, SYSTEM_PROMPT)
 
 
 if __name__ == "__main__":
