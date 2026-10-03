@@ -18,7 +18,9 @@ __pycache__/
 # Jupyter
 .ipynb_checkpoints/
 
-# Vector stores / local data
+# Vector stores / local data (keep the folder itself via .gitkeep)
+data/*
+!data/.gitkeep
 chroma_db/
 *.sqlite3
 
