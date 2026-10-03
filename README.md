@@ -22,7 +22,7 @@ cp .env.example .env   # then add your API keys
 ## Environment variables
 
 API keys live in `.env` (git-ignored). See `.env.example` for the supported variables:
-OpenAI, Anthropic, AWS Bedrock, and optional LangSmith tracing.
+LLM provider/model settings plus OpenAI and Anthropic API keys.
 
 Load them in code with:
 
