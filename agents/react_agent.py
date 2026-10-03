@@ -70,8 +70,12 @@ SYSTEM_PROMPT = (
     "never guess membership details."
 )
 
-def build_react_graph(tools: list, system_prompt: str):
-    """Compile a ReAct graph: LLM node <-> prebuilt tool node, looping until no tool calls."""
+
+def build_react_graph(tools: list, system_prompt: str, checkpointer=None):
+    """Compile a ReAct graph: LLM node <-> prebuilt tool node, looping until no tool calls.
+
+    Pass a checkpointer (e.g. InMemorySaver) to persist conversation state per thread_id.
+    """
     llm_with_tools = get_llm().bind_tools(tools)
 
     def invoke_llm(state: MessagesState) -> dict:
@@ -84,7 +88,7 @@ def build_react_graph(tools: list, system_prompt: str):
     graph_builder.add_edge(START, "invoke_llm")
     graph_builder.add_conditional_edges("invoke_llm", tools_condition)  # Prebuilt conditional edge
     graph_builder.add_edge("tools", "invoke_llm")
-    return graph_builder.compile()
+    return graph_builder.compile(checkpointer=checkpointer)
 
 
 react_graph = build_react_graph(tools, SYSTEM_PROMPT)

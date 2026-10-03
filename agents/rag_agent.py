@@ -4,11 +4,15 @@
     policy_details  : policy ID -> fees, copays, coverage
 """
 
+import uuid
+
 from langchain_community.vectorstores import Chroma
 from langchain_core.documents import Document
 from langchain_core.messages import HumanMessage
+from langchain_core.runnables import RunnableConfig
 from langchain_core.tools import tool
 from langchain_openai import OpenAIEmbeddings
+from langgraph.checkpoint.memory import InMemorySaver
 
 from agents.react_agent import build_react_graph
 
@@ -99,11 +103,19 @@ SYSTEM_PROMPT = (
     "Base answers only on retrieved policy data; if something isn't covered, say so."
 )
 
-rag_graph = build_react_graph(tools, SYSTEM_PROMPT)
+checkpointer = InMemorySaver()
+rag_graph = build_react_graph(tools, SYSTEM_PROMPT, checkpointer=checkpointer)
 
 
 if __name__ == "__main__":
-    question = "What would be my total payment for a doctor visit? My member id is abc123."
-    human_message = HumanMessage(content=question)
-    for event in rag_graph.stream({"messages": [human_message]}, stream_mode="values"):
-        event["messages"][-1].pretty_print()
+    # Each conversation is a thread; the checkpointer keeps its message history
+    config = RunnableConfig(configurable={"thread_id": str(uuid.uuid4())})
+
+    questions = [
+        "What would be my total payment for a doctor visit? My member id is abc123.",
+        "And what about a specialist visit?",  # relies on remembering the member ID
+    ]
+    for question in questions:
+        human_message = HumanMessage(content=question)
+        for event in rag_graph.stream({"messages": [human_message]}, config, stream_mode="values"):
+            event["messages"][-1].pretty_print()
