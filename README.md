@@ -1,6 +1,6 @@
-# Multi-Agent Systems — Companion Repository
+# Practical Multi-Agent AI Systems — Companion Repository
 
-Companion code repository for the book **_Multi-Agent Systems_** by **Kashaboina**.
+Companion code repository for the book **_Practical Multi-Agent AI Systems: How to Architect, Build, and Scale Next-Generation AI Systems That Work in the Real World_** (Tech Today) by **Kashaboina**.
 
 This repo contains my working code, notebooks, and experiments while following along with the book — building multi-agent systems with LangChain, LangGraph, MCP, and vector stores.
 
