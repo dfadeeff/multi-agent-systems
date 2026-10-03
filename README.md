@@ -44,6 +44,7 @@ python -m ipykernel install --user --name mas --display-name "Python (mas)"
 ```
 agents/          # agent implementations
 llm_providers/   # get_llm() factory for OpenAI / Anthropic chat models
+mcp_servers/     # MCP servers exposing tools over streamable HTTP
 utils/           # shared helpers
 config/          # settings loaded from .env
 notebooks/       # Jupyter notebooks per chapter

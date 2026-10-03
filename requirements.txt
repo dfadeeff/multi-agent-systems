@@ -7,7 +7,8 @@ langgraph-prebuilt==0.6.2
 langgraph-sdk==0.2.0
 langsmith>=0.4.10
 langchain-experimental>=0.0.50
-langchain-mcp-adapters>=0.1.14
+langchain-mcp-adapters>=0.1.14,<0.2  # 0.2+ needs langchain-core 1.x
+mcp>=1.9.2,<2  # book uses FastMCP (renamed in mcp 2.x)
 # LLM Providers
 langchain-openai>=0.0.8
 langchain-anthropic>=0.1.0
