@@ -1,0 +1,27 @@
+# Core LangChain and LangGraph
+langchain>=0.1.0
+langchain-community>=0.0.20
+langgraph>=0.0.26
+langgraph-checkpoint==2.1.1
+langgraph-prebuilt==0.6.2
+langgraph-sdk==0.2.0
+langsmith>=0.4.10
+langchain-experimental>=0.0.50
+langchain-mcp-adapters>=0.1.14
+# LLM Providers
+langchain-openai>=0.0.8
+langchain-anthropic>=0.1.0
+langchain-aws>=0.1.0
+# Vector Databases
+chromadb>=0.4.22
+
+# Core Dependencies
+pydantic>=2.5.0
+python-dotenv>=1.0.0
+
+# Data Processing
+pandas>=2.1.0
+
+# Jupyter for Interactive Development
+jupyter>=1.0.0
+ipykernel>=6.25.0
