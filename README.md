@@ -39,6 +39,27 @@ Register the venv as a kernel:
 python -m ipykernel install --user --name mas --display-name "Python (mas)"
 ```
 
+## Project structure
+
+```
+agents/          # agent implementations
+llm_providers/   # get_llm() factory for OpenAI / Anthropic chat models
+utils/           # shared helpers
+config/          # settings loaded from .env
+notebooks/       # Jupyter notebooks per chapter
+data/            # local datasets and vector stores
+tests/           # tests
+```
+
+Quick check:
+
+```python
+from llm_providers import get_llm
+
+llm = get_llm()  # uses LLM_PROVIDER / LLM_MODEL from .env
+print(llm.invoke("Hello!").content)
+```
+
 ## Stack
 
 - LangChain / LangGraph (+ MCP adapters)
