@@ -5,7 +5,7 @@
 
 from datetime import date
 
-from langchain_core.messages import SystemMessage
+from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.tools import tool
 from langgraph.graph import START, MessagesState, StateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
@@ -17,13 +17,31 @@ MEMBERSHIPS = {
     "C001": {"name": "Alice Smith", "status": "Gold", "active": True},
     "C002": {"name": "Bob Jones", "status": "Silver", "active": True},
     "C003": {"name": "Carol White", "status": "Bronze", "active": False},
+    "ABC123": {"name": "Dan Brown", "status": "Silver", "active": True},
+}
+
+# Copay per visit type, by membership tier
+COPAYS = {
+    "Gold": {"doctor_visit": 10, "specialist_visit": 25, "emergency_room": 100},
+    "Silver": {"doctor_visit": 25, "specialist_visit": 50, "emergency_room": 200},
+    "Bronze": {"doctor_visit": 40, "specialist_visit": 80, "emergency_room": 350},
 }
 
 
 @tool
 def get_membership_status(customer_id: str) -> dict:
-    """Look up an insurance customer's membership status by customer ID (e.g. 'C001')."""
+    """Look up an insurance customer's membership status by customer/member ID (e.g. 'C001')."""
     return MEMBERSHIPS.get(customer_id.upper(), {"error": f"No customer with ID {customer_id}"})
+
+
+@tool
+def get_copay(membership_status: str, visit_type: str) -> dict:
+    """Get the copay in USD for a visit type ('doctor_visit', 'specialist_visit',
+    'emergency_room') under a membership tier ('Gold', 'Silver', 'Bronze')."""
+    tier = COPAYS.get(membership_status.capitalize())
+    if tier is None or visit_type not in tier:
+        return {"error": f"Unknown tier {membership_status!r} or visit type {visit_type!r}"}
+    return {"membership_status": membership_status, "visit_type": visit_type, "copay_usd": tier[visit_type]}
 
 
 @tool
@@ -44,7 +62,7 @@ def get_today() -> str:
     return date.today().isoformat()
 
 
-tools = [get_membership_status, multiply, add, get_today]
+tools = [get_membership_status, get_copay, multiply, add, get_today]
 
 SYSTEM_PROMPT = (
     "You are a helpful insurance customer service assistant. "
@@ -70,15 +88,8 @@ react_graph = graph_builder.compile()
 
 
 if __name__ == "__main__":
-    questions = [
-        "What is the membership status of customer C001?",
-        "Is customer c003 active?",
-        "What is (12.5 * 4) + 7?",
-        "What's today's date?",
-    ]
-    for q in questions:
-        result = react_graph.invoke({"messages": [("user", q)]})
-        print(f"Q: {q}")
-        for m in result["messages"][1:-1]:
-            print(f"   [{m.type}] {m.tool_calls if m.type == 'ai' else m.content}")
-        print(f"A: {result['messages'][-1].content}\n")
+    question = "What would be my total payment for a doctor visit? My member id is abc123."
+    human_message = HumanMessage(content=question)
+    # stream_mode="values" yields the full graph state after each step
+    for event in react_graph.stream({"messages": [human_message]}, stream_mode="values"):
+        event["messages"][-1].pretty_print()
