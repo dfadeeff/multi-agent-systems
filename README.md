@@ -61,6 +61,22 @@ llm = get_llm()  # uses LLM_PROVIDER / LLM_MODEL from .env
 print(llm.invoke("Hello!").content)
 ```
 
+## MCP server
+
+Run locally:
+
+```bash
+python -m mcp_servers.policy_server   # http://127.0.0.1:8000/mcp
+python -m agents.mcp_agent            # in another terminal
+```
+
+Or in Docker (the API key is passed at runtime, never baked into the image):
+
+```bash
+docker build -f mcp_servers/Dockerfile -t policy-mcp .
+docker run --rm -p 8000:8000 --env-file .env policy-mcp
+```
+
 ## Stack
 
 - LangChain / LangGraph (+ MCP adapters)

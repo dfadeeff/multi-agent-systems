@@ -1,0 +1,6 @@
+# Minimal deps for the policy MCP server image (kept in line with ../requirements.txt)
+mcp>=1.9.2,<2
+langchain-community>=0.3,<0.4
+langchain-openai>=0.3,<0.4
+chromadb>=0.4.22
+python-dotenv>=1.0.0

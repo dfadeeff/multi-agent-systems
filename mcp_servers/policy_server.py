@@ -1,14 +1,22 @@
 """MCP server exposing the member/policy retrieval tools over streamable HTTP.
 
 Run:  python -m mcp_servers.policy_server   ->  http://127.0.0.1:8000/mcp
+Docker: see mcp_servers/Dockerfile (binds 0.0.0.0 via MCP_HOST)
 """
+
+import os
 
 from mcp.server.fastmcp import FastMCP
 
 from utils.policy_store import member_policy_db, policy_details_db
 
-# Initialize MCP server (book uses host="0.0.0.0"; localhost keeps it off the network)
-mcp = FastMCP(name="member-policy-mcp", host="127.0.0.1", port=8000)
+# Initialize MCP server. Defaults to localhost to keep it off the network;
+# the container sets MCP_HOST=0.0.0.0 so the published port is reachable.
+mcp = FastMCP(
+    name="member-policy-mcp",
+    host=os.getenv("MCP_HOST", "127.0.0.1"),
+    port=int(os.getenv("MCP_PORT", "8000")),
+)
 
 
 @mcp.tool()

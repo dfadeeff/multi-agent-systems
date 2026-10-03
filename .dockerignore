@@ -1,0 +1,9 @@
+# Keep secrets and local artifacts out of the build context
+.env
+.env.*
+.venv/
+.git/
+.idea/
+data/
+notebooks/
+**/__pycache__/
